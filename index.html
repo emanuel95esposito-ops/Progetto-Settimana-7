@@ -7,49 +7,85 @@
   <title>SportsHub — Eventi sportivi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/style.css">
-  <script type="module" src="./assets/js/script.js"></script>
+  <script type="module" src="./assets/js/main.js"></script>
 </head>
 
 <body>
 
-  <header class="bg-primary text-white text-center py-5">
+  <nav class="navbar navbar-expand-lg bg-primary sticky-top shadow-sm" data-bs-theme="dark">
     <div class="container">
 
-      <div class="header-azioni">
-        <!-- tema chiaro/scuro, Accedi, Registrati: arrivano dopo la v1.0.0 -->
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="./index.html">
+        <i class="fa-solid fa-trophy fs-4"></i>
+        SportsHub
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+        aria-controls="menu" aria-expanded="false" aria-label="Apri il menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="menu">
+        <div class="ms-auto d-lg-flex align-items-center gap-2">
+
+          <!-- Inattivi: l'autenticazione arriva dopo questa versione. -->
+          <div class="d-flex gap-2 my-3 my-lg-0">
+            <button type="button" class="btn btn-sm btn-outline-light" disabled>Accedi</button>
+            <button type="button" class="btn btn-sm btn-light" disabled>Registrati</button>
+          </div>
+
+          <form id="form-ricerca" class="d-flex" role="search">
+            <label for="query" class="visually-hidden">Nome squadra</label>
+
+            <div class="input-group input-group-sm">
+              <input type="search" id="query" name="query" class="form-control" placeholder="es. Arsenal, Lakers, Milan"
+                autocomplete="off" required>
+
+              <button type="submit" class="btn btn-light">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span class="visually-hidden">Cerca</span>
+              </button>
+            </div>
+          </form>
+
+        </div>
       </div>
 
-      <h1 class="display-4 fw-bold mb-2">SportsHub</h1>
-      <p class="lead opacity-75 mb-4">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
-
-      <form id="form-ricerca" class="row justify-content-center" role="search">
-        <div class="col-12 col-md-8 col-lg-6">
-          <label for="query" class="visually-hidden">Nome squadra</label>
-          <div class="input-group input-group-lg">
-            <input type="search" id="query" name="query" class="form-control" placeholder="es. Arsenal, Lakers, Milan"
-              autocomplete="off" required>
-
-            <button type="submit" class="btn btn-light fw-semibold">Cerca</button>
-          </div>
-        </div>
-      </form>
-
-      <div id="esempi" class="d-flex justify-content-center flex-wrap gap-2 mt-3"></div>
-
     </div>
-  </header>
+  </nav>
 
-  <main class="container">
+  <main class="container pt-5">
+
+    <p class="text-body-secondary mb-4">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+
 
     <section id="preferiti-section" class="mb-5">
-      <h2 class="h5 fw-bold mb-3">&#9733; Le tue squadre preferite</h2>
+      <h2 class="h5 fw-bold mb-3">
+        <i class="fa-solid fa-heart text-danger me-1"></i>
+        Le tue squadre preferite
+      </h2>
 
-      <div id="filtri-sport" class="btn-group btn-group-sm mb-3" role="group" aria-label="Filtra per sport" hidden>
-        <button type="button" class="btn btn-primary" data-sport="tutti">Tutti</button>
-        <button type="button" class="btn btn-outline-primary" data-sport="Soccer">Calcio</button>
-        <button type="button" class="btn btn-outline-primary" data-sport="Basketball">Basket</button>
-        <button type="button" class="btn btn-outline-primary" data-sport="American Football">Football</button>
+      <div id="filtri-sport" class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Filtra per sport" hidden>
+
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" data-sport="tutti">Tutti</button>
+
+        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-sport="Soccer" title="Calcio">
+          <i class="fa-solid fa-futbol"></i>
+          <span class="visually-hidden">Calcio</span>
+        </button>
+
+        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-sport="Basketball" title="Basket">
+          <i class="fa-solid fa-basketball"></i>
+          <span class="visually-hidden">Basket</span>
+        </button>
+
+        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-sport="American Football" title="Football americano">
+          <i class="fa-solid fa-football"></i>
+          <span class="visually-hidden">Football americano</span>
+        </button>
+
       </div>
 
       <p id="preferiti-vuoto" class="text-body-secondary fst-italic mb-0">
@@ -59,6 +95,12 @@
       <div id="preferiti" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3"></div>
     </section>
 
+    <section id="appuntamenti-section" class="mb-5" hidden>
+      <h2 class="h5 fw-bold mb-3">I tuoi prossimi appuntamenti</h2>
+
+      <ul id="appuntamenti" class="list-unstyled mb-0"></ul>
+    </section>
+
     <section id="risultati-section">
 
       <div id="spinner" class="text-center text-body-secondary py-5" hidden>
@@ -66,7 +108,6 @@
         <p class="mt-2 mb-0">Caricamento in corso…</p>
       </div>
 
-      <div id="errore" class="alert alert-danger" role="alert" hidden></div>
 
       <div id="stato-vuoto" class="text-center text-body-secondary py-5"></div>
 
@@ -107,6 +148,58 @@
               <ul id="ultimi" class="list-unstyled mb-0"></ul>
             </div>
           </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="evento-modal" tabindex="-1" aria-labelledby="evento-titolo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h2 id="evento-titolo" class="h6 mb-0"></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="d-flex justify-content-around align-items-center text-center mb-4">
+            <div class="w-25">
+              <img id="evento-stemma-casa" class="object-fit-contain mb-2" width="64" height="64" alt="">
+              <p id="evento-casa" class="small fw-semibold mb-0"></p>
+            </div>
+
+            <p id="evento-punteggio" class="h3 mb-0"></p>
+
+            <div class="w-25">
+              <img id="evento-stemma-trasferta" class="object-fit-contain mb-2" width="64" height="64" alt="">
+              <p id="evento-trasferta" class="small fw-semibold mb-0"></p>
+            </div>
+          </div>
+
+          <ul id="evento-dati" class="list-unstyled mb-0"></ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="errore-modal" tabindex="-1" aria-labelledby="errore-titolo"
+       aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h2 id="errore-titolo" class="h6 text-danger mb-0"></h2>
+        </div>
+
+        <div class="modal-body">
+          <p id="errore-testo" class="mb-0"></p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Ho capito</button>
         </div>
 
       </div>

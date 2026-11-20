@@ -85,7 +85,7 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 - [x] Setup del progetto
 - [x] Versione Base — ricerca squadre e dettaglio con Promise.all
 - [x] Versione Intermedia — preferiti, debounce, layout responsive
-- [ ] Versione Avanzata — filtro per sport, modal evento, moduli ES
+- [x] Versione Avanzata — filtro per sport, modal evento, moduli ES
 - [ ] Extra — autenticazione a due backend, tema chiaro/scuro
 
 ## Versioni
@@ -95,3 +95,5 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 | `v0.1.0` | ricerca squadre funzionante |
 | `v0.2.0` | dettaglio squadra |
 | `v1.0.0` | Versione Base completa |
+| `v1.1.0` | Versione Intermedia: preferiti, debounce, layout responsive |
+| `v1.2.0` | Versione Avanzata: modal evento, moduli ES, interfaccia rivista |
