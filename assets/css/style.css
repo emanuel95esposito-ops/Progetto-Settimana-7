@@ -1,30 +1,24 @@
 /* SportsHub — Week Project Settimana VII
-   Reset minimale + tipografia di base. Aggiungi qui le tue regole. */
+   Ho ridefinito lo stile attraverso le variabili CSS di Bootstrap
+   qui seguiranno cambio colori, font e raggi in tutta l'app. */
 
 
-* { box-sizing: border-box; }
+:root {
+  --bs-primary: hsl(220, 60%, 25%);
+  --bs-primary-rgb: 26, 51, 102;
 
-body {
-  margin: 0;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #1a1a1a;
-  background: #f4f6fa;
+  --bs-body-bg: #f4f6fa;
+  --bs-body-color: #1a1a1a;
+  --bs-body-font-family: "Helvetica Neue", Arial, sans-serif;
+  --bs-body-line-height: 1.6;
+
+  --bs-border-radius: .75rem;
 }
 
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: hsl(220, 60%, 20%);
+  --bs-btn-hover-border-color: hsl(220, 60%, 20%);
 }
 
-.site-header {
-  background-color: hsl(220, 60%, 25%);
-  color: white;
-  padding: 30px 20px;
-  text-align: center;
-}
-
-
-/* Aggiungi qui le tue regole per: form, risultati, card squadra, eventi. */
