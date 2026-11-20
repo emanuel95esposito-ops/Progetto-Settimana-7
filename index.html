@@ -13,23 +13,26 @@
 
 <body>
 
-  <header class="site-header">
+  <header class="bg-primary text-white text-center py-5">
     <div class="container">
 
       <div class="header-azioni">
         <!-- tema chiaro/scuro, Accedi, Registrati: arrivano dopo la v1.0.0 -->
       </div>
 
-      <h1 class="titolo">SportsHub</h1>
-      <p class="sottotitolo">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+      <h1 class="display-4 fw-bold mb-2">SportsHub</h1>
+      <p class="lead opacity-75 mb-4">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
 
-      <form id="form-ricerca" class="ricerca" role="search">
-        <label for="query" class="visually-hidden">Nome squadra</label>
+      <form id="form-ricerca" class="row justify-content-center" role="search">
+        <div class="col-12 col-md-8 col-lg-6">
+          <label for="query" class="visually-hidden">Nome squadra</label>
+          <div class="input-group input-group-lg">
+            <input type="search" id="query" name="query" class="form-control" placeholder="es. Arsenal, Lakers, Milan"
+              autocomplete="off" required>
 
-        <input type="search" id="query" name="query" class="form-control"
-          placeholder="es. Arsenal, Lakers, Milan" autocomplete="off" required>
-
-        <button type="submit" class="btn btn-light">Cerca</button>
+            <button type="submit" class="btn btn-light fw-semibold">Cerca</button>
+          </div>
+        </div>
       </form>
 
     </div>
@@ -39,39 +42,40 @@
 
     <section id="risultati-section">
 
-      <div id="spinner" class="spinner text-center" hidden>
+      <div id="spinner" class="text-center text-body-secondary py-5" hidden>
         <span class="spinner-border" role="status" aria-hidden="true"></span>
         <p class="mt-2 mb-0">Caricamento in corso…</p>
       </div>
 
       <div id="errore" class="alert alert-danger" role="alert" hidden></div>
 
-      <p id="stato-vuoto" class="stato-vuoto">Cerca una squadra per iniziare.</p>
+      <p id="stato-vuoto" class="text-center text-body-secondary fst-italic py-5 mb-0">Cerca una squadra per iniziare.
+      </p>
 
-      <h2 id="titolo-risultati" class="titolo-sezione" hidden>Squadre trovate</h2>
+      <h2 id="titolo-risultati" class="h5 fw-bold mb-3" hidden>Squadre trovate</h2>
 
-      <div id="risultati" class="griglia-squadre" aria-live="polite"></div>
+      <div id="risultati" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3" aria-live="polite"></div>
     </section>
 
-    <section id="dettagli-section" class="dettagli" hidden>
-      <div class="dettagli-intestazione">
-        <img id="dettagli-logo" class="dettagli-logo" alt="">
+    <section id="dettagli-section" class="bg-white rounded shadow-sm p-4 mt-4" hidden>
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <img id="dettagli-logo" class="object-fit-contain" width="72" height="72" alt="">
 
         <div>
-          <h2 id="dettagli-nome" class="mb-0"></h2>
-          <p id="dettagli-meta" class="meta mb-0"></p>
+          <h2 id="dettagli-nome" class="h4 text-primary mb-0"></h2>
+          <p id="dettagli-meta" class="text-body-secondary small  mb-0"></p>
         </div>
       </div>
 
-      <div class="dettagli-colonne">
-        <div>
-          <h3 class="titolo-lista">Prossimi eventi</h3>
-          <ul id="prossimi" class="lista-eventi"></ul>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <h3 class="h5 border-bottom border-2 border-primary pb-2">Prossimi eventi</h3>
+          <ul id="prossimi" class="list-unstyled mb-0"></ul>
         </div>
 
-        <div>
-          <h3 class="titolo-lista">Ultimi risultati</h3>
-          <ul id="ultimi" class="lista-eventi"></ul>
+        <div class="col-md-6">
+          <h3 class="h5 border-bottom border-2 border-primary pb-2">Ultimi risultati</h3>
+          <ul id="ultimi" class="list-unstyled mb-0"></ul>
         </div>
       </div>
     </section>
