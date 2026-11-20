@@ -14,17 +14,66 @@
 <body>
 
   <header class="site-header">
-    <!-- Titolo dell'app + form di ricerca -->
+    <div class="container">
+
+      <div class="header-azioni">
+        <!-- tema chiaro/scuro, Accedi, Registrati: arrivano dopo la v1.0.0 -->
+      </div>
+
+      <h1 class="titolo">SportsHub</h1>
+      <p class="sottotitolo">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+
+      <form id="form-ricerca" class="ricerca" role="search">
+        <label for="query" class="visually-hidden">Nome squadra</label>
+
+        <input type="search" id="query" name="query" class="form-control"
+          placeholder="es. Arsenal, Lakers, Milan" autocomplete="off" required>
+
+        <button type="submit" class="btn btn-light">Cerca</button>
+      </form>
+
+    </div>
   </header>
 
   <main class="container">
 
     <section id="risultati-section">
-      <!-- Spinner, errore, lista risultati ricerca squadre -->
+
+      <div id="spinner" class="spinner text-center" hidden>
+        <span class="spinner-border" role="status" aria-hidden="true"></span>
+        <p class="mt-2 mb-0">Caricamento in corso…</p>
+      </div>
+
+      <div id="errore" class="alert alert-danger" role="alert" hidden></div>
+
+      <p id="stato-vuoto" class="stato-vuoto">Cerca una squadra per iniziare.</p>
+
+      <h2 id="titolo-risultati" class="titolo-sezione" hidden>Squadre trovate</h2>
+
+      <div id="risultati" class="griglia-squadre" aria-live="polite"></div>
     </section>
 
-    <section id="dettagli-section" hidden>
-      <!-- Visibile dopo click su una squadra: prossimi eventi + ultimi risultati -->
+    <section id="dettagli-section" class="dettagli" hidden>
+      <div class="dettagli-intestazione">
+        <img id="dettagli-logo" class="dettagli-logo" alt="">
+
+        <div>
+          <h2 id="dettagli-nome" class="mb-0"></h2>
+          <p id="dettagli-meta" class="meta mb-0"></p>
+        </div>
+      </div>
+
+      <div class="dettagli-colonne">
+        <div>
+          <h3 class="titolo-lista">Prossimi eventi</h3>
+          <ul id="prossimi" class="lista-eventi"></ul>
+        </div>
+
+        <div>
+          <h3 class="titolo-lista">Ultimi risultati</h3>
+          <ul id="ultimi" class="lista-eventi"></ul>
+        </div>
+      </div>
     </section>
 
   </main>
