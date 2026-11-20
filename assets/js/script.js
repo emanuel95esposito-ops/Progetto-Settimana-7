@@ -136,6 +136,26 @@ let preferiti = caricaPreferiti();
 let timeoutId;
 let controller;
 
+// Filtro dei preferiti: "tutti" oppure il valore di strSport dell'API.
+let filtroSport = "tutti";
+
+function resetFiltroSport() {
+    filtroSport = "tutti";
+
+    filtriSport.querySelectorAll("[data-sport]").forEach((b) => {
+        const attivo = b.dataset.sport === "tutti";
+
+        b.classList.toggle("btn-primary", attivo);
+        b.classList.toggle("btn-outline-primary", !attivo);
+    });
+}
+
+function preferitiFiltrati() {
+    if (filtroSport === "tutti") return preferiti;
+
+    return preferiti.filter((squadra) => squadra.sport === filtroSport);
+}
+
 function caricaPreferiti() {
     const dati = JSON.parse(localStorage.getItem(PREFERITI_KEY) ?? "[]");
 
@@ -166,6 +186,7 @@ const inputQuery = document.querySelector("#query");
 const esempiBox = document.querySelector("#esempi");
 const preferitiBox = document.querySelector("#preferiti");
 const preferitiVuoto = document.querySelector("#preferiti-vuoto");
+const filtriSport = document.querySelector("#filtri-sport");
 const dettagliModal = document.querySelector("#dettagli-modal");
 const dettagliLogo = document.querySelector("#dettagli-logo");
 const dettagliNome = document.querySelector("#dettagli-nome");
@@ -268,7 +289,9 @@ function creaCardSquadra(squadra) {
 }
 
 function renderPreferiti() {
-    const colonne = preferiti.map((squadra) => {
+    const elenco = preferitiFiltrati();
+
+    const colonne = elenco.map((squadra) => {
         const { colonna, card } = creaCardSquadra(squadra);
 
         const bottone = creaElemento("button", "btn btn-sm btn-outline-danger w-100 mt-3",
@@ -281,7 +304,19 @@ function renderPreferiti() {
     });
 
     preferitiBox.replaceChildren(...colonne);
-    preferitiVuoto.hidden = preferiti.length > 0;
+
+    filtriSport.hidden = preferiti.length === 0;
+
+    if (preferiti.length === 0) {
+        preferitiVuoto.textContent =
+            "Non hai ancora salvato nessuna squadra. Cercane una e aggiungila ai preferiti.";
+        preferitiVuoto.hidden = false;
+    } else if (elenco.length === 0) {
+        preferitiVuoto.textContent = "Nessuna squadra salvata per questo sport.";
+        preferitiVuoto.hidden = false;
+    } else {
+        preferitiVuoto.hidden = true;
+    }
 }
 
 function renderSquadre(squadre) {
@@ -498,6 +533,9 @@ risultati.addEventListener("click", (e) => {
 
     preferiti.push(squadra);
     salvaPreferiti();
+
+    // senza questo, un filtro attivo nasconderebbe la squadra appena aggiunta
+    resetFiltroSport();
     renderPreferiti();
 
     bottone.className = "btn btn-sm btn-secondary w-100 mt-3";
@@ -523,6 +561,23 @@ preferitiBox.addEventListener("click", (e) => {
         daRiattivare.textContent = "\u2605 Aggiungi ai preferiti";
         daRiattivare.disabled = false;
     }
+});
+
+filtriSport.addEventListener("click", (e) => {
+    const bottone = e.target.closest("[data-sport]");
+
+    if (!bottone) return;
+
+    filtroSport = bottone.dataset.sport;
+
+    filtriSport.querySelectorAll("[data-sport]").forEach((b) => {
+        const attivo = b.dataset.sport === filtroSport;
+
+        b.classList.toggle("btn-primary", attivo);
+        b.classList.toggle("btn-outline-primary", !attivo);
+    });
+
+    renderPreferiti();
 });
 
 esempiBox.addEventListener("click", (e) => {
