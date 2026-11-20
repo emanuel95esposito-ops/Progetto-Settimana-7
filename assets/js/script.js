@@ -178,6 +178,22 @@ function renderSquadre(squadre) {
     titoloRisultati.hidden = squadre.length === 0;
 }
 
+function mostraSkeleton(quante = 1) {
+    const colonne = Array.from({ length: quante }, () => {
+        const colonna = creaElemento("div", "col");
+        const card = creaElemento("article", "card h-100 text-center p-3 placeholder-glow", colonna);
+
+        creaElemento("span", "placeholder skeleton-logo rounded-circle mx-auto mb-3", card);
+        creaElemento("span", "placeholder col-6 mx-auto mb-2", card);
+        creaElemento("span", "placeholder col-9 mx-auto", card);
+        creaElemento("span", "placeholder col-4 mx-auto", card);
+
+        return colonna;
+    });
+
+    risultati.replaceChildren(...colonne);
+}
+
 function renderEventi(lista, eventi) {
     if (eventi.length === 0) {
         const vuoto = creaElemento("li", "text-body-secondary fst-italic py-2",
@@ -188,19 +204,28 @@ function renderEventi(lista, eventi) {
     }
 
     const voci = eventi.map((evento) => {
-        const li = creaElemento("li", "border-bottom py-2");
+        const li = creaElemento("li", "border-bottom py-3");
 
-        creaElemento("p", "text-body-secondary small mb-1", li, evento.dataFormattata());
+        creaElemento("p", "text-body-secondary small mb-2", li, evento.dataFormattata());
 
-        const riga = creaElemento("div", "d-flex align-items-center gap-2", li);
+        const giocata = evento.punteggio() !== null;
+        const golCasa = Number(evento.punteggioCasa);
+        const golTrasferta = Number(evento.punteggioTrasferta);
 
-        creaElemento("span", "fw-semibold", riga, `${evento.casa} vs ${evento.trasferta}`);
+        const riga = (nome, gol, vince) => {
+            const div = creaElemento("div",
+                "d-flex justify-content-between align-items-center gap-3", li);
 
-        const punteggio = evento.punteggio();
+            creaElemento("span", vince ? "fw-bold text-truncate" : "text-truncate", div, nome);
 
-        if (punteggio) {
-            creaElemento("span", "badge text-bg-success", riga, punteggio);
-        }
+            if (gol !== null) {
+                creaElemento("span",
+                    vince ? "fw-bold text-nowrap" : "text-body-secondary text-nowrap", div, gol);
+            }
+        };
+
+        riga(evento.casa, evento.punteggioCasa, giocata && golCasa > golTrasferta);
+        riga(evento.trasferta, evento.punteggioTrasferta, giocata && golTrasferta > golCasa);
 
         return li;
     });
@@ -231,14 +256,17 @@ formRicerca.addEventListener("submit", async (e) => {
 
     if (query.length < 2) return;
 
-    mostraSpinner();
-    risultati.replaceChildren();
+    errore.hidden = true;
+    statoVuoto.hidden = true;
     titoloRisultati.hidden = true;
+
+    mostraSkeleton();
 
     try {
         const squadre = await cercaSquadre(query);
 
         if (squadre.length === 0) {
+            risultati.replaceChildren();
             mostraMessaggio(`Nessuna squadra trovata per "${query}".`);
             return;
         }
@@ -246,11 +274,11 @@ formRicerca.addEventListener("submit", async (e) => {
         squadreTrovate = squadre;
         renderSquadre(squadre);
     } catch (err) {
+        risultati.replaceChildren();
+
         mostraErrore(err.status
             ? `Il servizio non risponde (errore ${err.status}). Riprova tra poco.`
             : "Impossibile contattare il servizio. Controlla la connessione.");
-    } finally {
-        nascondiSpinner();
     }
 });
 
