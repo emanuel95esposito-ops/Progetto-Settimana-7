@@ -83,10 +83,28 @@ async function cercaSquadre(query) {
     return dati.teams.map((squadra) => new Squadra(squadra));
 }
 
+async function caricaDettagli(idTeam) {
+    const urlProssimi = new URL("eventsnext.php", BASE);
+    const urlUltimi = new URL("eventslast.php", BASE);
+
+    urlProssimi.searchParams.set("id", idTeam);
+    urlUltimi.searchParams.set("id", idTeam);
+
+    const [prossimi, ultimi] = await Promise.all([
+        getJSON(urlProssimi),
+        getJSON(urlUltimi)
+    ]);
+
+    return {
+        prossimi: (prossimi.events ?? []).map((evento) => new Evento(evento)),
+        ultimi: (ultimi.results ?? []).map((evento) => new Evento(evento))
+    };
+}
+
 
 // === Stato ===
 
-
+let squadreTrovate = [];
 
 // === Render ===
 
@@ -97,6 +115,12 @@ const errore = document.querySelector("#errore");
 const statoVuoto = document.querySelector("#stato-vuoto");
 const formRicerca = document.querySelector("#form-ricerca");
 const inputQuery = document.querySelector("#query");
+const dettagliSection = document.querySelector("#dettagli-section");
+const dettagliLogo = document.querySelector("#dettagli-logo");
+const dettagliNome = document.querySelector("#dettagli-nome");
+const dettagliMeta = document.querySelector("#dettagli-meta");
+const listaProssimi = document.querySelector("#prossimi");
+const listaUltimi = document.querySelector("#ultimi");
 
 function creaElemento(tag, classe, genitore, testo) {
     const elemento = document.createElement(tag);
@@ -154,6 +178,50 @@ function renderSquadre(squadre) {
     titoloRisultati.hidden = squadre.length === 0;
 }
 
+function renderEventi(lista, eventi) {
+    if (eventi.length === 0) {
+        const vuoto = creaElemento("li", "text-body-secondary fst-italic py-2",
+            undefined, "Nessun evento in programma");
+
+        lista.replaceChildren(vuoto);
+        return;
+    }
+
+    const voci = eventi.map((evento) => {
+        const li = creaElemento("li", "border-bottom py-2");
+
+        creaElemento("p", "text-body-secondary small mb-1", li, evento.dataFormattata());
+
+        const riga = creaElemento("div", "d-flex align-items-center gap-2", li);
+
+        creaElemento("span", "fw-semibold", riga, `${evento.casa} vs ${evento.trasferta}`);
+
+        const punteggio = evento.punteggio();
+
+        if (punteggio) {
+            creaElemento("span", "badge text-bg-success", riga, punteggio);
+        }
+
+        return li;
+    });
+
+    lista.replaceChildren(...voci);
+}
+
+function renderDettagli(squadra, prossimi, ultimi) {
+    dettagliLogo.src = squadra.logo ?? "";
+    dettagliLogo.alt = `Stemma ${squadra.nome}`;
+
+    dettagliNome.textContent = squadra.nome;
+    dettagliMeta.textContent = `${squadra.lega} · ${squadra.paese}`;
+
+    renderEventi(listaProssimi, prossimi);
+    renderEventi(listaUltimi, ultimi);
+
+    dettagliSection.hidden = false;
+    dettagliSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 // === Eventi ===
 
 formRicerca.addEventListener("submit", async (e) => {
@@ -175,11 +243,35 @@ formRicerca.addEventListener("submit", async (e) => {
             return;
         }
 
+        squadreTrovate = squadre;
         renderSquadre(squadre);
     } catch (err) {
         mostraErrore(err.status
             ? `Il servizio non risponde (errore ${err.status}). Riprova tra poco.`
             : "Impossibile contattare il servizio. Controlla la connessione.");
+    } finally {
+        nascondiSpinner();
+    }
+});
+
+risultati.addEventListener("click", async (e) => {
+    const card = e.target.closest("[data-id]");
+
+    if (!card) return;
+
+    const squadra = squadreTrovate.find((s) => s.id === card.dataset.id);
+
+    if (!squadra) return;
+
+    mostraSpinner();
+
+    try {
+        const { prossimi, ultimi } = await caricaDettagli(squadra.id);
+
+        renderDettagli(squadra, prossimi, ultimi);
+    } catch (err) {
+        mostraErrore(`Impossibile caricare i dettagli di ${squadra.nome}.`);
+        dettagliSection.hidden = true;
     } finally {
         nascondiSpinner();
     }

@@ -7,7 +7,7 @@ Week project della Settimana VII — Master Front-End EPICODE.
 
 ## Anteprima
 
-<!-- screenshot della pagina, da aggiungere a interfaccia pronta -->
+![SportsHub](assets/img/anteprima.png)
 
 ## Funzionalità
 
@@ -82,7 +82,7 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 ## Stato
 
 - [x] Setup del progetto
-- [ ] Versione Base — ricerca squadre e dettaglio con Promise.all
+- [x] Versione Base — ricerca squadre e dettaglio con Promise.all
 - [ ] Versione Intermedia — preferiti, debounce, layout responsive
 - [ ] Versione Avanzata — filtro per sport, modal evento, moduli ES
 - [ ] Extra — autenticazione a due backend, tema chiaro/scuro
