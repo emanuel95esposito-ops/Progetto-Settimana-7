@@ -84,7 +84,7 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 
 - [x] Setup del progetto
 - [x] Versione Base — ricerca squadre e dettaglio con Promise.all
-- [ ] Versione Intermedia — preferiti, debounce, layout responsive
+- [x] Versione Intermedia — preferiti, debounce, layout responsive
 - [ ] Versione Avanzata — filtro per sport, modal evento, moduli ES
 - [ ] Extra — autenticazione a due backend, tema chiaro/scuro
 
