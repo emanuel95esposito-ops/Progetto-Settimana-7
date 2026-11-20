@@ -83,7 +83,13 @@ async function cercaSquadre(query) {
     return dati.teams.map((squadra) => new Squadra(squadra));
 }
 
+const cacheDettagli = new Map();
+
 async function caricaDettagli(idTeam) {
+    if (cacheDettagli.has(idTeam)) {
+        return cacheDettagli.get(idTeam);
+    }
+
     const urlProssimi = new URL("eventsnext.php", BASE);
     const urlUltimi = new URL("eventslast.php", BASE);
 
@@ -95,10 +101,14 @@ async function caricaDettagli(idTeam) {
         getJSON(urlUltimi)
     ]);
 
-    return {
+    const dettagli = {
         prossimi: (prossimi.events ?? []).map((evento) => new Evento(evento)),
         ultimi: (ultimi.results ?? []).map((evento) => new Evento(evento))
     };
+
+    cacheDettagli.set(idTeam, dettagli);
+
+    return dettagli;
 }
 
 
@@ -115,6 +125,7 @@ const errore = document.querySelector("#errore");
 const statoVuoto = document.querySelector("#stato-vuoto");
 const formRicerca = document.querySelector("#form-ricerca");
 const inputQuery = document.querySelector("#query");
+const esempiBox = document.querySelector("#esempi");
 const dettagliSection = document.querySelector("#dettagli-section");
 const dettagliLogo = document.querySelector("#dettagli-logo");
 const dettagliNome = document.querySelector("#dettagli-nome");
@@ -147,8 +158,48 @@ function mostraErrore(messaggio) {
     errore.hidden = false;
 }
 
-function mostraMessaggio(testo) {
-    statoVuoto.textContent = testo;
+function messaggioErrore(err, contesto) {
+    if (err.status === 429) {
+        return "Troppe richieste in poco tempo. Aspetta qualche secondo e riprova.";
+    }
+
+    if (err.status) {
+        return `${contesto} (errore ${err.status}). Riprova tra poco.`;
+    }
+
+    return "Impossibile contattare il servizio. Controlla la connessione.";
+}
+
+// L'API cerca per nome quasi completo: l'etichetta e' corta, la query e' quella vera.
+const ESEMPI = [
+    { etichetta: "Arsenal", query: "Arsenal" },
+    { etichetta: "Lakers", query: "Los Angeles Lakers" },
+    { etichetta: "Patriots", query: "New England Patriots" }
+];
+
+function renderEsempi() {
+    const bottoni = ESEMPI.map((esempio) => {
+        const bottone = creaElemento("button", "btn btn-sm btn-outline-light rounded-pill",
+            undefined, esempio.etichetta);
+
+        bottone.type = "button";
+        bottone.dataset.esempio = esempio.query;
+
+        return bottone;
+    });
+
+    esempiBox.replaceChildren(...bottoni);
+}
+
+function mostraMessaggio(testo, suggerimento) {
+    statoVuoto.replaceChildren();
+
+    creaElemento("p", "fst-italic mb-1", statoVuoto, testo);
+
+    if (suggerimento) {
+        creaElemento("p", "small mb-0", statoVuoto, suggerimento);
+    }
+
     statoVuoto.hidden = false;
 }
 
@@ -158,6 +209,9 @@ function renderSquadre(squadre) {
         const card = creaElemento("article", "card h-100 text-center p-3", colonna);
 
         card.dataset.id = squadra.id;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Apri i dettagli di ${squadra.nome}`);
 
         const logo = creaElemento("img", "object-fit-contain mx-auto mb-3", card);
 
@@ -267,7 +321,10 @@ formRicerca.addEventListener("submit", async (e) => {
 
         if (squadre.length === 0) {
             risultati.replaceChildren();
-            mostraMessaggio(`Nessuna squadra trovata per "${query}".`);
+            mostraMessaggio(
+                `Nessuna squadra trovata per "${query}".`,
+                "Prova con il nome completo della squadra."
+            );
             return;
         }
 
@@ -276,9 +333,7 @@ formRicerca.addEventListener("submit", async (e) => {
     } catch (err) {
         risultati.replaceChildren();
 
-        mostraErrore(err.status
-            ? `Il servizio non risponde (errore ${err.status}). Riprova tra poco.`
-            : "Impossibile contattare il servizio. Controlla la connessione.");
+        mostraErrore(messaggioErrore(err, "Il servizio non risponde"));
     }
 });
 
@@ -298,9 +353,33 @@ risultati.addEventListener("click", async (e) => {
 
         renderDettagli(squadra, prossimi, ultimi);
     } catch (err) {
-        mostraErrore(`Impossibile caricare i dettagli di ${squadra.nome}.`);
+        mostraErrore(messaggioErrore(err, `Impossibile caricare i dettagli di ${squadra.nome}`));
+
         dettagliSection.hidden = true;
     } finally {
         nascondiSpinner();
     }
 });
+
+risultati.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+
+    const card = e.target.closest("[data-id]");
+
+    if (!card) return;
+
+    e.preventDefault();
+    card.click();
+});
+
+esempiBox.addEventListener("click", (e) => {
+    const bottone = e.target.closest("[data-esempio]");
+
+    if (!bottone) return;
+
+    inputQuery.value = bottone.dataset.esempio;
+    formRicerca.requestSubmit();
+});
+
+renderEsempi();
+mostraMessaggio("Cerca una squadra per iniziare.");
