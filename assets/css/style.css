@@ -22,7 +22,9 @@
   --bs-btn-hover-border-color: hsl(220, 60%, 20%);
 }
 
-#risultati .card {
+/* Solo le card vere sono cliccabili: lo skeleton non deve reagire al mouse. */
+
+#risultati .card:not(.placeholder-glow) {
   cursor: pointer;
   transition: transform .15s ease, box-shadow .15s ease;
 
