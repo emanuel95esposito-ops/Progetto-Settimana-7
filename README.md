@@ -17,6 +17,7 @@ Week project della Settimana VII — Master Front-End EPICODE.
 - Squadre preferite salvate nel browser e legate all'utente autenticato
 - Tema chiaro/scuro con preferenza ricordata tra una visita e l'altra
 - Accesso e registrazione su pagine dedicate
+- Card dei risultati navigabili da tastiera e annunciate agli screen reader
 
 ## Tecnologie
 
