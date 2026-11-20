@@ -24,6 +24,19 @@ class Squadra {
         this.paese = dati.strCountry;
         this.sport = dati.strSport;
     }
+
+    // I preferiti tornano dal localStorage con i nomi italiani:
+    // qui rifanno il percorso inverso verso il costruttore.
+    static fromJSON(dati) {
+        return new Squadra({
+            idTeam: dati.id,
+            strTeam: dati.nome,
+            strBadge: dati.logo,
+            strLeague: dati.lega,
+            strCountry: dati.paese,
+            strSport: dati.sport
+        });
+    }
 }
 
 class Evento {
@@ -71,12 +84,12 @@ async function getJSON(url, opzioni) {
     return risposta.json();
 }
 
-async function cercaSquadre(query) {
+async function cercaSquadre(query, signal) {
     const url = new URL("searchteams.php", BASE);
 
     url.searchParams.set("t", query);
 
-    const dati = await getJSON(url);
+    const dati = await getJSON(url, { signal });
 
     if (!dati.teams) return [];
 
@@ -114,7 +127,32 @@ async function caricaDettagli(idTeam) {
 
 // === Stato ===
 
+const PREFERITI_KEY = "sportshub:preferiti";
+
 let squadreTrovate = [];
+let preferiti = caricaPreferiti();
+
+// Ricerca mentre si digita: timer del debounce e richiesta da annullare.
+let timeoutId;
+let controller;
+
+function caricaPreferiti() {
+    const dati = JSON.parse(localStorage.getItem(PREFERITI_KEY) ?? "[]");
+
+    return dati.map((squadra) => Squadra.fromJSON(squadra));
+}
+
+function salvaPreferiti() {
+    localStorage.setItem(PREFERITI_KEY, JSON.stringify(preferiti));
+}
+
+function isPreferita(id) {
+    return preferiti.some((squadra) => squadra.id === id);
+}
+
+function trovaSquadra(id) {
+    return squadreTrovate.find((s) => s.id === id) ?? preferiti.find((s) => s.id === id);
+}
 
 // === Render ===
 
@@ -126,7 +164,9 @@ const statoVuoto = document.querySelector("#stato-vuoto");
 const formRicerca = document.querySelector("#form-ricerca");
 const inputQuery = document.querySelector("#query");
 const esempiBox = document.querySelector("#esempi");
-const dettagliSection = document.querySelector("#dettagli-section");
+const preferitiBox = document.querySelector("#preferiti");
+const preferitiVuoto = document.querySelector("#preferiti-vuoto");
+const dettagliModal = document.querySelector("#dettagli-modal");
 const dettagliLogo = document.querySelector("#dettagli-logo");
 const dettagliNome = document.querySelector("#dettagli-nome");
 const dettagliMeta = document.querySelector("#dettagli-meta");
@@ -203,27 +243,60 @@ function mostraMessaggio(testo, suggerimento) {
     statoVuoto.hidden = false;
 }
 
+function creaCardSquadra(squadra) {
+    const colonna = creaElemento("div", "col");
+    const card = creaElemento("article", "card h-100 text-center p-3", colonna);
+
+    card.dataset.id = squadra.id;
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `Apri i dettagli di ${squadra.nome}`);
+
+    const logo = creaElemento("img", "object-fit-contain mx-auto mb-3", card);
+
+    logo.src = squadra.logo ?? "";
+    logo.alt = `Stemma ${squadra.nome}`;
+    logo.width = 100;
+    logo.height = 100;
+    logo.loading = "lazy";
+
+    creaElemento("h3", "h6 fw-bold mb-1", card, squadra.nome);
+    creaElemento("p", "text-body-secondary small mb-0", card, squadra.lega);
+    creaElemento("p", "text-body-secondary small mb-0", card, squadra.paese);
+
+    return { colonna, card };
+}
+
+function renderPreferiti() {
+    const colonne = preferiti.map((squadra) => {
+        const { colonna, card } = creaCardSquadra(squadra);
+
+        const bottone = creaElemento("button", "btn btn-sm btn-outline-danger w-100 mt-3",
+            card, "\u{1F5D1} Rimuovi");
+
+        bottone.type = "button";
+        bottone.dataset.azione = "rimuovi";
+
+        return colonna;
+    });
+
+    preferitiBox.replaceChildren(...colonne);
+    preferitiVuoto.hidden = preferiti.length > 0;
+}
+
 function renderSquadre(squadre) {
     const colonne = squadre.map((squadra) => {
-        const colonna = creaElemento("div", "col");
-        const card = creaElemento("article", "card h-100 text-center p-3", colonna);
+        const { colonna, card } = creaCardSquadra(squadra);
+        const giaSalvata = isPreferita(squadra.id);
 
-        card.dataset.id = squadra.id;
-        card.tabIndex = 0;
-        card.setAttribute("role", "button");
-        card.setAttribute("aria-label", `Apri i dettagli di ${squadra.nome}`);
+        const bottone = creaElemento("button",
+            giaSalvata ? "btn btn-sm btn-secondary w-100 mt-3" : "btn btn-sm btn-warning w-100 mt-3",
+            card,
+            giaSalvata ? "\u2713 Gi\u00e0 nei preferiti" : "\u2605 Aggiungi ai preferiti");
 
-        const logo = creaElemento("img", "object-fit-contain mx-auto mb-3", card);
-
-        logo.src = squadra.logo ?? "";
-        logo.alt = `Stemma ${squadra.nome}`;
-        logo.width = 100;
-        logo.height = 100;
-        logo.loading = "lazy";
-
-        creaElemento("h3", "h6 fw-bold mb-1", card, squadra.nome);
-        creaElemento("p", "text-body-secondary small mb-0", card, squadra.lega);
-        creaElemento("p", "text-body-secondary small mb-0", card, squadra.paese);
+        bottone.type = "button";
+        bottone.disabled = giaSalvata;
+        bottone.dataset.azione = "aggiungi";
 
         return colonna;
     });
@@ -297,18 +370,16 @@ function renderDettagli(squadra, prossimi, ultimi) {
     renderEventi(listaProssimi, prossimi);
     renderEventi(listaUltimi, ultimi);
 
-    dettagliSection.hidden = false;
-    dettagliSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    bootstrap.Modal.getOrCreateInstance(dettagliModal).show();
 }
 
 // === Eventi ===
 
-formRicerca.addEventListener("submit", async (e) => {
-    e.preventDefault();
+async function eseguiRicerca(query) {
+    controller?.abort();
+    controller = new AbortController();
 
-    const query = inputQuery.value.trim();
-
-    if (query.length < 2) return;
+    const { signal } = controller;
 
     errore.hidden = true;
     statoVuoto.hidden = true;
@@ -317,35 +388,60 @@ formRicerca.addEventListener("submit", async (e) => {
     mostraSkeleton();
 
     try {
-        const squadre = await cercaSquadre(query);
+        const squadre = await cercaSquadre(query, signal);
 
         if (squadre.length === 0) {
             risultati.replaceChildren();
+
             mostraMessaggio(
                 `Nessuna squadra trovata per "${query}".`,
                 "Prova con il nome completo della squadra."
             );
+
             return;
         }
 
         squadreTrovate = squadre;
         renderSquadre(squadre);
     } catch (err) {
+        // una richiesta annullata non e' un errore da mostrare
+        if (err.name === "AbortError") return;
+
         risultati.replaceChildren();
 
         mostraErrore(messaggioErrore(err, "Il servizio non risponde"));
     }
+}
+
+formRicerca.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    clearTimeout(timeoutId);
+
+    const query = inputQuery.value.trim();
+
+    if (query.length < 2) return;
+
+    eseguiRicerca(query);
 });
 
-risultati.addEventListener("click", async (e) => {
-    const card = e.target.closest("[data-id]");
+inputQuery.addEventListener("input", () => {
+    clearTimeout(timeoutId);
+    controller?.abort();
 
-    if (!card) return;
+    const query = inputQuery.value.trim();
 
-    const squadra = squadreTrovate.find((s) => s.id === card.dataset.id);
+    if (query.length < 3) {
+        risultati.replaceChildren();
+        titoloRisultati.hidden = true;
+        mostraMessaggio("Cerca una squadra per iniziare.");
+        return;
+    }
 
-    if (!squadra) return;
+    timeoutId = setTimeout(() => eseguiRicerca(query), 400);
+});
 
+async function apriDettagli(squadra) {
     mostraSpinner();
 
     try {
@@ -354,14 +450,27 @@ risultati.addEventListener("click", async (e) => {
         renderDettagli(squadra, prossimi, ultimi);
     } catch (err) {
         mostraErrore(messaggioErrore(err, `Impossibile caricare i dettagli di ${squadra.nome}`));
-
-        dettagliSection.hidden = true;
     } finally {
         nascondiSpinner();
     }
-});
+}
 
-risultati.addEventListener("keydown", (e) => {
+function gestisciClickCard(e) {
+    // i bottoni dentro la card hanno una loro azione: non aprono il dettaglio
+    if (e.target.closest("[data-azione]")) return;
+
+    const card = e.target.closest("[data-id]");
+
+    if (!card) return;
+
+    const squadra = trovaSquadra(card.dataset.id);
+
+    if (!squadra) return;
+
+    apriDettagli(squadra);
+}
+
+function gestisciTastiCard(e) {
     if (e.key !== "Enter" && e.key !== " ") return;
 
     const card = e.target.closest("[data-id]");
@@ -370,6 +479,50 @@ risultati.addEventListener("keydown", (e) => {
 
     e.preventDefault();
     card.click();
+}
+
+risultati.addEventListener("click", gestisciClickCard);
+preferitiBox.addEventListener("click", gestisciClickCard);
+
+risultati.addEventListener("keydown", gestisciTastiCard);
+preferitiBox.addEventListener("keydown", gestisciTastiCard);
+
+risultati.addEventListener("click", (e) => {
+    const bottone = e.target.closest('[data-azione="aggiungi"]');
+
+    if (!bottone) return;
+
+    const squadra = trovaSquadra(bottone.closest("[data-id]").dataset.id);
+
+    if (!squadra || isPreferita(squadra.id)) return;
+
+    preferiti.push(squadra);
+    salvaPreferiti();
+    renderPreferiti();
+
+    bottone.className = "btn btn-sm btn-secondary w-100 mt-3";
+    bottone.textContent = "\u2713 Gi\u00e0 nei preferiti";
+    bottone.disabled = true;
+});
+
+preferitiBox.addEventListener("click", (e) => {
+    const bottone = e.target.closest('[data-azione="rimuovi"]');
+
+    if (!bottone) return;
+
+    const id = bottone.closest("[data-id]").dataset.id;
+
+    preferiti = preferiti.filter((squadra) => squadra.id !== id);
+    salvaPreferiti();
+    renderPreferiti();
+
+    const daRiattivare = risultati.querySelector(`[data-id="${id}"] [data-azione="aggiungi"]`);
+
+    if (daRiattivare) {
+        daRiattivare.className = "btn btn-sm btn-warning w-100 mt-3";
+        daRiattivare.textContent = "\u2605 Aggiungi ai preferiti";
+        daRiattivare.disabled = false;
+    }
 });
 
 esempiBox.addEventListener("click", (e) => {
@@ -382,4 +535,5 @@ esempiBox.addEventListener("click", (e) => {
 });
 
 renderEsempi();
+renderPreferiti();
 mostraMessaggio("Cerca una squadra per iniziare.");
