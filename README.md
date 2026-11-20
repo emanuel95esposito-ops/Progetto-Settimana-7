@@ -33,8 +33,9 @@ Nessuna dipendenza da installare per la modalità predefinita.
 | `/eventsnext.php?id=` | prossime partite |
 | `/eventslast.php?id=` | ultimi risultati |
 
-Con la chiave gratuita molte squadre non espongono partite future: l'interfaccia
-gestisce il caso mostrando "Nessun evento in programma".
+La chiave di test gratuita è `123`. Comporta due limiti, entrambi gestiti dall'interfaccia:
+la ricerca restituisce **una sola squadra** per volta, quella con il match migliore,
+e molte squadre non espongono partite future.
 
 ## Autenticazione
 
