@@ -123,6 +123,23 @@ async function caricaAppuntamenti() {
 
 // === Eventi ===
 
+// Si cerca dalla barra in cima, ma i risultati compaiono in fondo alla pagina:
+// senza questo scorrimento chi digita non vedrebbe nulla accadere.
+function portaAiRisultati() {
+    const barra = document.querySelector(".navbar");
+    const margine = (barra?.offsetHeight ?? 64) + 12;
+
+    // La sezione intera, non solo l'elenco: cosi' si vede anche il titolo.
+    const sezione = risultati.closest("section") ?? risultati;
+
+    const destinazione = sezione.getBoundingClientRect().top + window.scrollY - margine;
+
+    // Chi ha chiesto meno animazioni al sistema ci arriva di colpo.
+    const dolce = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    window.scrollTo({ top: destinazione, behavior: dolce ? "smooth" : "auto" });
+}
+
 async function eseguiRicerca(query) {
     controller?.abort();
     controller = new AbortController();
@@ -133,6 +150,8 @@ async function eseguiRicerca(query) {
     titoloRisultati.hidden = true;
 
     mostraSkeleton();
+
+    portaAiRisultati();
 
     try {
         const squadre = await cercaSquadre(query, signal);

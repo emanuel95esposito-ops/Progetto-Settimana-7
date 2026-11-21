@@ -123,3 +123,23 @@ li[data-evento] {
     transition: none;
   }
 }
+
+
+/* Quando parte la ricerca la pagina scorre fin qui: perche' la sezione possa
+   salire davvero in cima le serve spazio sotto di se', altrimenti il browser
+   si ferma al fondo del documento e il titolo resta a meta' schermo. */
+
+
+/* Con poco contenuto il footer resterebbe a mezz'aria: la pagina occupa tutta
+   l'altezza dello schermo e il contenuto principale si prende lo spazio che
+   avanza, cosi' il footer finisce sempre in fondo. */
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body > main {
+  flex: 1;
+}
