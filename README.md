@@ -5,6 +5,7 @@ con dati in tempo reale da TheSportsDB.
 
 Week project della Settimana VII — Master Front-End EPICODE.
 
+[Prova l'app](https://emanuel95esposito-ops.github.io/Progetto-Settimana-7/) ·
 [Tutte le versioni rilasciate](https://github.com/emanuel95esposito-ops/Progetto-Settimana-7/releases)
 
 ## Anteprima
@@ -87,6 +88,9 @@ Registrazione e accesso completi su un backend finto in locale. Richiede:
     npm run server
 
 e `MODALITA = "locale"`. Il server resta in ascolto su `http://localhost:3001`.
+Vale solo in locale: la versione pubblicata su GitHub Pages è servita in HTTPS
+e non può chiamare un indirizzo in HTTP, oltre al fatto che quel server gira
+soltanto sul tuo computer.
 Il file `db.json` contiene gli account creati durante le prove e resta fuori dal
 repository: in versione vuota è `db.example.json`.
 
@@ -96,7 +100,10 @@ diversi, e chi non entra continua a usare un elenco anonimo.
 
 ## Come avviarlo
 
-Serve un server locale: i moduli ES non funzionano aprendo il file con doppio clic.
+L'app è già online: [emanuel95esposito-ops.github.io/Progetto-Settimana-7](https://emanuel95esposito-ops.github.io/Progetto-Settimana-7/)
+
+Per lavorarci serve un server locale: i moduli ES non funzionano aprendo il file
+con doppio clic.
 
 1. Clona il repository
 2. Apri la cartella in VS Code
