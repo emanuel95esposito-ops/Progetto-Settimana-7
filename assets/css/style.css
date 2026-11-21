@@ -3,16 +3,52 @@
    qui seguiranno cambio colori, font e raggi in tutta l'app. */
 
 
+/* Quello che vale per tutti e due i temi: carattere, raggi, colore guida. */
+
 :root {
   --bs-primary: hsl(220, 60%, 25%);
   --bs-primary-rgb: 26, 51, 102;
 
-  --bs-body-bg: #f4f6fa;
-  --bs-body-color: #1a1a1a;
   --bs-body-font-family: "Helvetica Neue", Arial, sans-serif;
   --bs-body-line-height: 1.6;
 
   --bs-border-radius: .75rem;
+}
+
+/* Sfondo e testo valgono solo a tema chiaro: scritti in :root resterebbero
+   chiari anche al buio, perche' vincerebbero sui valori di Bootstrap. */
+
+[data-bs-theme="light"] {
+  --bs-body-bg: #f4f6fa;
+  --bs-body-color: #1a1a1a;
+
+  --card-hover: #eaf0fa;
+}
+
+/* Le card restano bianche sopra lo sfondo appena grigio della pagina:
+   senza questo prenderebbero lo stesso colore e si vedrebbe solo il bordo. */
+
+[data-bs-theme="light"] .card {
+  --bs-card-bg: #fff;
+}
+
+/* Al buio il blu della palette e' troppo scuro per staccare dallo sfondo:
+   la barra e i bottoni usano una tinta piu' chiara dello stesso colore. */
+
+[data-bs-theme="dark"] {
+  --bs-primary: hsl(220, 55%, 42%);
+  --bs-primary-rgb: 48, 87, 167;
+
+  --card-hover: #343b42;
+}
+
+/* Senza questo le card sparirebbero nello sfondo: al buio Bootstrap da' a
+   entrambi lo stesso colore e resterebbe solo il bordo a dividerli. La
+   variabile va posata sulla card, non sulla pagina: e' li' che Bootstrap
+   la dichiara, e una dichiarazione sull'elemento vince su quella ereditata. */
+
+[data-bs-theme="dark"] .card {
+  --bs-card-bg: #2b3035;
 }
 
 .btn-primary {
@@ -24,13 +60,15 @@
 
 /* Solo le card vere sono cliccabili: lo skeleton non deve reagire al mouse. */
 
-#risultati .card:not(.placeholder-glow) {
+#risultati .card:not(.placeholder-glow),
+#preferiti .card {
   cursor: pointer;
-  transition: transform .15s ease, box-shadow .15s ease;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 .5rem 1rem rgb(0 0 0 / .12);
+    background-color: var(--card-hover);
   }
 }
 
@@ -42,15 +80,46 @@
 /* Le voci degli eventi aprono la loro scheda. */
 
 li[data-evento] {
-    cursor: pointer;
+  cursor: pointer;
 
-    &:hover {
-        background-color: var(--bs-tertiary-bg);
-    }
+  &:hover {
+    background-color: var(--bs-tertiary-bg);
+  }
 
-    &:focus-visible {
-        outline: 2px solid var(--bs-primary);
-        outline-offset: -2px;
-    }
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: -2px;
+  }
 }
 
+
+/* La frase di apertura entra una volta sola, al caricamento. */
+
+#intro {
+  animation: entra .5s ease-out both;
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(-.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Chi ha chiesto al sistema meno animazioni non deve vederne nessuna. */
+
+@media (prefers-reduced-motion: reduce) {
+  #intro {
+    animation: none;
+  }
+
+  #risultati .card,
+  #preferiti .card {
+    transition: none;
+  }
+}

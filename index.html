@@ -5,6 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SportsHub — Eventi sportivi</title>
+  <!-- Prima del disegno: senza questo la pagina lampeggia chiara
+       per un istante anche quando il tema scelto e' scuro. -->
+  <script>
+    document.documentElement.setAttribute("data-bs-theme",
+      localStorage.getItem("sportshub:tema")
+      ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  </script>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -30,10 +38,16 @@
       <div class="collapse navbar-collapse" id="menu">
         <div class="ms-auto d-lg-flex align-items-center gap-2">
 
-          <!-- Inattivi: l'autenticazione arriva dopo questa versione. -->
-          <div class="d-flex gap-2 my-3 my-lg-0">
-            <button type="button" class="btn btn-sm btn-outline-light" disabled>Accedi</button>
-            <button type="button" class="btn btn-sm btn-light" disabled>Registrati</button>
+          <div class="d-flex align-items-center gap-2 my-3 my-lg-0">
+
+            <button type="button" id="tema" class="btn btn-sm btn-outline-light" title="Cambia tema">
+              <i class="fa-solid fa-moon"></i>
+              <span class="visually-hidden">Cambia tema</span>
+            </button>
+
+            <!-- Riempito da ui.js: due link, oppure il nome di chi e' entrato. -->
+            <div id="area-utente" class="d-flex align-items-center gap-2"></div>
+
           </div>
 
           <form id="form-ricerca" class="d-flex" role="search">
@@ -58,7 +72,7 @@
 
   <main class="container pt-5">
 
-    <p class="text-body-secondary mb-4">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+    <p id="intro" class="text-body-secondary mb-4">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
 
 
     <section id="preferiti-section" class="mb-5">

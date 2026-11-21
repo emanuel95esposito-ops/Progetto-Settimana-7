@@ -1,0 +1,5 @@
+node_modules/
+
+# Il database locale nasce da db.example.json e contiene gli account creati
+# durante le prove: resta sul computer, non nel repository.
+db.json

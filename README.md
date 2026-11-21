@@ -5,24 +5,37 @@ con dati in tempo reale da TheSportsDB.
 
 Week project della Settimana VII — Master Front-End EPICODE.
 
+[Tutte le versioni rilasciate](https://github.com/emanuel95esposito-ops/Progetto-Settimana-7/releases)
+
 ## Anteprima
 
-![SportsHub](assets/img/anteprima.png)
+La pagina principale: squadre preferite con filtro per sport e i prossimi
+impegni di tutte, in ordine di data.
+
+![La pagina principale di SportsHub](assets/img/anteprima.png)
+
+La scheda di un singolo evento, che si apre dalle liste delle partite.
+
+![La scheda di una partita, con punteggio e dati dell'incontro](assets/img/anteprima-modale.png)
 
 ## Funzionalità
 
-- Ricerca di una squadra per nome (calcio, basket, football americano)
-- Card con logo, campionato e paese
-- Dettaglio squadra: prossime partite e ultimi risultati caricati in parallelo
-- Squadre preferite salvate nel browser e legate all'utente autenticato
-- Tema chiaro/scuro con preferenza ricordata tra una visita e l'altra
+- Ricerca di una squadra per nome, mentre si digita, con annullamento della richiesta superata
+- Card con stemma, campionato e paese, apribili anche da tastiera
+- Scheda squadra: prossime partite e ultimi risultati, chiesti in parallelo
+- Scheda del singolo evento: competizione, stagione, giornata, stadio, orario e highlights
+- Squadre preferite salvate nel browser e legate all'utente che ha fatto accesso
+- Filtro dei preferiti per sport
+- I cinque impegni più vicini fra tutte le squadre salvate, in ordine di data
 - Accesso e registrazione su pagine dedicate
-- Card dei risultati navigabili da tastiera e annunciate agli screen reader
+- Tema chiaro e scuro: la scelta resta salvata, il primo avvio segue le impostazioni del sistema
+- Segnaposto animati durante il caricamento e avvisi dedicati in caso di errore
 
 ## Tecnologie
 
-HTML5, CSS3, Bootstrap 5.3, JavaScript ES6+ (classi, moduli, async/await).
-Nessuna dipendenza da installare per la modalità predefinita.
+HTML5, CSS3 con nesting nativo, Bootstrap 5.3, Font Awesome 6,
+JavaScript ES6+ (classi, moduli, async/await).
+Tutto da CDN: per la modalità predefinita non serve installare niente.
 
 ## API
 
@@ -34,14 +47,23 @@ Nessuna dipendenza da installare per la modalità predefinita.
 | `/eventsnext.php?id=` | prossime partite |
 | `/eventslast.php?id=` | ultimi risultati |
 
-La chiave di test gratuita è `123`. Comporta due limiti, entrambi gestiti dall'interfaccia:
-la ricerca restituisce **una sola squadra** per volta, quella con il match migliore,
-e molte squadre non espongono partite future.
+La chiave di test gratuita è `123`, condivisa fra tutti quelli che la usano.
+Comporta tre limiti, tutti gestiti dall'interfaccia:
+
+- la ricerca restituisce **una sola squadra** per volta, quella che corrisponde meglio,
+  quindi conviene scrivere il nome quasi per intero;
+- molte squadre non espongono partite future;
+- il servizio accetta **poche richieste al minuto** e oltre quella soglia le rifiuta.
+
+Contro il terzo limite l'app si difende su tre fronti: una cache per squadra nel
+`localStorage` valida dieci minuti, una pausa di trenta secondi dopo un rifiuto
+invece di insistere, e messaggi che distinguono il servizio che non risponde
+dalla connessione assente. Entrambe le durate sono costanti dichiarate in `assets/js/api.js`.
 
 ## Autenticazione
 
 L'app usa due backend intercambiabili dietro la stessa interfaccia, selezionabili
-dalla costante `MODALITA` in `assets/js/auth.js`:
+dalla costante `MODALITA` in `auth/auth.js`:
 
 **`"demo"` (predefinita)** — [DummyJSON](https://dummyjson.com).
 Login reale con JWT salvato in localStorage, header `Authorization: Bearer`,
@@ -54,13 +76,16 @@ Credenziali di prova: `emilys` / `emilyspass`, precompilabili dalla pagina di ac
 Registrazione e accesso completi su un backend finto in locale. Richiede:
 
     npm install
+    npm run server:init    # solo la prima volta: crea db.json da db.example.json
     npm run server
 
 e `MODALITA = "locale"`. Il server resta in ascolto su `http://localhost:3001`.
+Il file `db.json` contiene gli account creati durante le prove e resta fuori dal
+repository: in versione vuota è `db.example.json`.
 
-L'accesso è facoltativo: ricerca e dettagli funzionano anche senza autenticarsi.
-Il login serve a legare i preferiti a un utente, così account diversi vedono
-elenchi diversi.
+L'accesso è facoltativo: ricerca, schede e preferiti funzionano anche senza.
+Serve a legare i preferiti a un utente, così account diversi vedono elenchi
+diversi, e chi non entra continua a usare un elenco anonimo.
 
 ## Come avviarlo
 
@@ -70,15 +95,29 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 2. Apri la cartella in VS Code
 3. Avvia Live Server su `index.html`
 
+I comandi `npm` servono soltanto per provare la modalità `"locale"`.
+
 ## Struttura
 
     index.html
-    auth/
+    auth/                 l'accesso sta tutto qui, pagine e script insieme
       login.html
+      login.js
       register.html
+      register.js
+      auth.js             i due backend dietro un'interfaccia sola
     assets/
-      css/style.css
+      css/style.css       variabili Bootstrap, due temi, poche regole proprie
+      img/                immagini del README
       js/
+        classi.js         Squadra ed Evento
+        api.js            chiamate a TheSportsDB, cache, pausa dopo un rifiuto
+        ui.js             elementi della pagina, messaggi, spinner, barra utente
+        render.js         card, liste di eventi e schede
+        main.js           stato, ascoltatori, avvio
+        tema.js           chiaro/scuro: scelta, memoria, bottone
+    db.example.json       database vuoto per la modalità locale
+    package.json          solo per la modalità locale
 
 ## Stato
 
@@ -86,7 +125,8 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 - [x] Versione Base — ricerca squadre e dettaglio con Promise.all
 - [x] Versione Intermedia — preferiti, debounce, layout responsive
 - [x] Versione Avanzata — filtro per sport, modal evento, moduli ES
-- [ ] Extra — autenticazione a due backend, tema chiaro/scuro
+- [x] Extra — autenticazione a due backend
+- [x] Extra — tema chiaro/scuro
 
 ## Versioni
 
@@ -97,3 +137,4 @@ Serve un server locale: i moduli ES non funzionano aprendo il file con doppio cl
 | `v1.0.0` | Versione Base completa |
 | `v1.1.0` | Versione Intermedia: preferiti, debounce, layout responsive |
 | `v1.2.0` | Versione Avanzata: modal evento, moduli ES, interfaccia rivista |
+| `v1.3.0` | Extra: accesso con due backend intercambiabili e tema chiaro/scuro |

@@ -42,25 +42,56 @@ class Evento {
         this.stadio = dati.strVenue;
         this.paese = dati.strCountry;
         this.ora = dati.strTime;
+
+        // Momento esatto in UTC: con questo data e ora si possono mostrare nel
+        // fuso di chi guarda, invece che in quello del server.
+        this.istante = dati.strTimestamp;
         this.stemmaCasa = dati.strHomeTeamBadge;
         this.stemmaTrasferta = dati.strAwayTeamBadge;
         this.video = dati.strVideo;
     }
 
+    // L'API manda l'orario in UTC: senza la Z finale il browser lo leggerebbe
+    // come ora locale e la partita slitterebbe di qualche ora.
+    quando() {
+        if (this.istante) return new Date(`${this.istante}Z`);
+        if (this.data) return new Date(this.data);
+
+        return null;
+    }
+
     dataFormattata() {
-        if (!this.data) return "Data da definire";
+        const momento = this.quando();
+
+        if (!momento) return "Data da definire";
 
         return new Intl.DateTimeFormat("it-IT", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric"
-        }).format(new Date(this.data));
+        }).format(momento);
+    }
+
+    // "sab", per la colonna di destra degli appuntamenti.
+    giornoSettimana() {
+        const momento = this.quando();
+
+        if (!momento) return null;
+
+        return new Intl.DateTimeFormat("it-IT", { weekday: "short" }).format(momento);
     }
 
     oraFormattata() {
+        if (this.istante) {
+            return new Intl.DateTimeFormat("it-IT", {
+                hour: "2-digit",
+                minute: "2-digit"
+            }).format(this.quando());
+        }
+
         if (!this.ora) return null;
 
-        // L'API manda "15:00:00": i secondi non servono.
+        // Senza timestamp resta l'orario grezzo: "15:00:00" diventa "15:00".
         return this.ora.slice(0, 5);
     }
 
@@ -87,6 +118,7 @@ class Evento {
             strVenue: dati.stadio,
             strCountry: dati.paese,
             strTime: dati.ora,
+            strTimestamp: dati.istante,
             strHomeTeamBadge: dati.stemmaCasa,
             strAwayTeamBadge: dati.stemmaTrasferta,
             strVideo: dati.video

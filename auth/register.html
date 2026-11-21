@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrati — SportsHub</title>
+  <!-- Prima del disegno: senza questo la pagina lampeggia chiara
+       per un istante anche quando il tema scelto e' scuro. -->
+  <script>
+    document.documentElement.setAttribute("data-bs-theme",
+      localStorage.getItem("sportshub:tema")
+      ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  </script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script type="module" src="./register.js"></script>
+</head>
+
+<body>
+
+  <nav class="navbar bg-primary shadow-sm" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="../index.html">
+        <i class="fa-solid fa-trophy fs-4"></i>
+        SportsHub
+      </a>
+
+      <div class="d-flex gap-2">
+        <button type="button" id="tema" class="btn btn-sm btn-outline-light" title="Cambia tema">
+          <i class="fa-solid fa-moon"></i>
+          <span class="visually-hidden">Cambia tema</span>
+        </button>
+
+        <a class="btn btn-sm btn-outline-light" href="../index.html">
+          <i class="fa-solid fa-arrow-left me-1"></i>
+          Torna all'app
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+
+        <h1 class="h4 fw-bold mb-1">Registrati</h1>
+        <p class="text-body-secondary mb-4">Crea un account per avere i tuoi preferiti su ogni dispositivo.</p>
+
+        <div id="avviso-modalita" class="alert alert-warning" role="alert" hidden></div>
+        <div id="errore-registrazione" class="alert alert-danger" role="alert" hidden></div>
+
+        <form id="form-registrazione" novalidate>
+
+          <div class="mb-3">
+            <label for="identita" class="form-label" id="etichetta-identita">Email</label>
+            <input type="email" id="identita" name="identita" class="form-control" autocomplete="email" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" autocomplete="new-password"
+              minlength="6" required>
+            <div class="form-text">Almeno sei caratteri.</div>
+          </div>
+
+          <div class="mb-4">
+            <label for="conferma" class="form-label">Ripeti la password</label>
+            <input type="password" id="conferma" name="conferma" class="form-control" autocomplete="new-password"
+              required>
+          </div>
+
+          <button type="submit" id="bottone-registra" class="btn btn-primary w-100">
+            <span id="spinner-registra" class="spinner-border spinner-border-sm me-1" role="status" hidden></span>
+            Crea l'account
+          </button>
+
+        </form>
+
+        <p class="text-body-secondary small mt-4 mb-0">
+          Hai già un account?
+          <a href="./login.html">Accedi</a>
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+
+</html>

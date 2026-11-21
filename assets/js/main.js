@@ -16,18 +16,30 @@
 import { Squadra } from "./classi.js";
 import { cercaSquadre, caricaProssimi, caricaDettagli, rimuoviCache } from "./api.js";
 import {
-    risultati, titoloRisultati, statoVuoto, formRicerca, inputQuery,
-    preferitiBox, filtriSport, appuntamentiLista, listaProssimi, listaUltimi,
-    mostraSpinner, nascondiSpinner, mostraErrore, messaggioErrore, mostraMessaggio,
-    mostraSkeleton, renderPreferiti, renderSquadre, renderDettagli,
-    apriEvento, trovaEventoMostrato, mostraSezioneAppuntamenti, appuntamentiInCaricamento,
-    renderAppuntamenti, segnaBottoneSalvato, segnaBottoneDaSalvare, aggiornaBottoniFiltro
+    risultati, titoloRisultati, statoVuoto, formRicerca, inputQuery, preferitiBox,
+    filtriSport, appuntamentiLista, listaProssimi, listaUltimi, mostraSpinner,
+    nascondiSpinner, mostraErrore, messaggioErrore, mostraMessaggio, mostraSkeleton,
+    mostraSezioneAppuntamenti, appuntamentiInCaricamento, segnaBottoneSalvato,
+    segnaBottoneDaSalvare, aggiornaBottoniFiltro, renderAreaUtente
 } from "./ui.js";
+import {
+    renderPreferiti, renderSquadre, renderDettagli, apriEvento, trovaEventoMostrato,
+    renderAppuntamenti
+} from "./render.js";
+import { utenteCorrente, logout, verificaSessione } from "../../auth/auth.js";
+import { collegaBottoneTema } from "./tema.js";
+
+collegaBottoneTema();
 
 
 // === Stato ===
 
-const PREFERITI_KEY = "sportshub:preferiti";
+// Ogni utente ha i suoi preferiti; chi non entra usa quelli anonimi.
+function chiavePreferiti() {
+    const utente = utenteCorrente();
+
+    return utente ? `sportshub:preferiti:${utente.id}` : "sportshub:preferiti";
+}
 
 let squadreTrovate = [];
 let preferiti = caricaPreferiti();
@@ -57,13 +69,13 @@ function preferitiFiltrati() {
 }
 
 function caricaPreferiti() {
-    const dati = JSON.parse(localStorage.getItem(PREFERITI_KEY) ?? "[]");
+    const dati = JSON.parse(localStorage.getItem(chiavePreferiti()) ?? "[]");
 
     return dati.map((squadra) => Squadra.fromJSON(squadra));
 }
 
 function salvaPreferiti() {
-    localStorage.setItem(PREFERITI_KEY, JSON.stringify(preferiti));
+    localStorage.setItem(chiavePreferiti(), JSON.stringify(preferiti));
 }
 
 function isPreferita(id) {
@@ -299,6 +311,35 @@ filtriSport.addEventListener("click", (e) => {
     renderPreferiti(preferitiFiltrati(), preferiti.length);
 });
 
+// === Sessione ===
+
+function esci() {
+    logout();
+
+    // Con l'uscita cambiano i preferiti da mostrare: il modo piu' sicuro di
+    // rimettere tutto in riga e' ricaricare.
+    location.reload();
+}
+
+renderAreaUtente(utenteCorrente(), esci);
+
 renderPreferiti(preferitiFiltrati(), preferiti.length);
 caricaAppuntamenti();
 mostraMessaggio("Cerca una squadra per iniziare.");
+
+// Il token potrebbe essere scaduto: se il server lo rifiuta la sessione si
+// chiude e l'elenco dei preferiti torna quello anonimo.
+const eraEntrato = Boolean(utenteCorrente());
+
+verificaSessione().then((utente) => {
+    renderAreaUtente(utente, esci);
+
+    // La sessione e' scaduta mentre la pagina mostrava gia' i suoi preferiti:
+    // vanno riletti dalla chiave anonima.
+    if (eraEntrato && !utente) {
+        preferiti = caricaPreferiti();
+
+        renderPreferiti(preferitiFiltrati(), preferiti.length);
+        caricaAppuntamenti();
+    }
+});
