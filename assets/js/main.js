@@ -31,6 +31,24 @@ import { collegaBottoneTema } from "./tema.js";
 
 collegaBottoneTema();
 
+// La barra si scurisce quando la hero smette di farle da sfondo.
+// IntersectionObserver avvisa al passaggio, senza ascoltare ogni scroll.
+function sorvegliaHero() {
+    const hero = document.querySelector("#hero");
+    const barra = document.querySelector(".navbar");
+
+    if (!hero || !barra) return;
+
+    const osservatore = new IntersectionObserver(
+        ([voce]) => barra.classList.toggle("oltre-hero", !voce.isIntersecting),
+        { rootMargin: `-${barra.offsetHeight}px 0px 0px 0px` }
+    );
+
+    osservatore.observe(hero);
+}
+
+sorvegliaHero();
+
 
 // === Stato ===
 

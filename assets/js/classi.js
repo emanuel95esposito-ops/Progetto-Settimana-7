@@ -9,6 +9,10 @@ class Squadra {
         this.lega = dati.strLeague;
         this.paese = dati.strCountry;
         this.sport = dati.strSport;
+
+        // Immagine panoramica della squadra: fa da sfondo alla sua scheda.
+        // Il banner e' il ripiego per chi non ha fanart.
+        this.sfondo = dati.strFanart1 ?? dati.strBanner ?? null;
     }
 
     // I preferiti tornano dal localStorage con i nomi italiani:
@@ -20,7 +24,8 @@ class Squadra {
             strBadge: dati.logo,
             strLeague: dati.lega,
             strCountry: dati.paese,
-            strSport: dati.sport
+            strSport: dati.sport,
+            strFanart1: dati.sfondo
         });
     }
 }

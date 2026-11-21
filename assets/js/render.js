@@ -229,7 +229,31 @@ function renderEventi(lista, eventi) {
     lista.replaceChildren(...voci);
 }
 
+// Lo sfondo della scheda: l'API serve anche una versione ridotta
+// dell'immagine (circa 30 kB invece di 600), che sotto la sfumatura basta.
+function vestiIntestazione(squadra) {
+    const testa = dettagliModal.querySelector(".modal-header");
+    const chiudi = testa.querySelector(".btn-close");
+
+    const conFoto = Boolean(squadra.sfondo);
+
+    testa.classList.toggle("con-sfondo", conFoto);
+    chiudi.classList.toggle("btn-close-white", conFoto);
+
+    // Le utility di colore di Bootstrap sono !important: non basta ridefinire
+    // il colore nel foglio di stile, vanno scambiate le classi.
+    dettagliNome.classList.toggle("text-primary", !conFoto);
+    dettagliNome.classList.toggle("text-white", conFoto);
+
+    dettagliMeta.classList.toggle("text-body-secondary", !conFoto);
+    dettagliMeta.classList.toggle("text-white-50", conFoto);
+
+    testa.style.backgroundImage = conFoto ? `url("${squadra.sfondo}/small")` : "";
+}
+
 function renderDettagli(squadra, prossimi, ultimi) {
+    vestiIntestazione(squadra);
+
     dettagliLogo.src = squadra.logo ?? "";
     dettagliLogo.alt = `Stemma ${squadra.nome}`;
 

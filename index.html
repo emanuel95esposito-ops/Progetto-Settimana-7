@@ -36,6 +36,8 @@
       </button>
 
       <div class="collapse navbar-collapse" id="menu">
+
+
         <div class="ms-auto d-lg-flex align-items-center gap-2">
 
           <div class="d-flex align-items-center gap-2 my-3 my-lg-0">
@@ -70,9 +72,34 @@
     </div>
   </nav>
 
-  <main class="container pt-5">
+  <section id="hero" class="bg-primary text-white text-center d-flex align-items-center"
+    data-bs-theme="dark">
+    <div class="container position-relative">
 
-    <p id="intro" class="text-body-secondary mb-4">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+      <!-- Le tre sagome: entrano da sinistra, da destra e dal basso.
+           aria-hidden perche' sono decorazione, non informazione. -->
+      <span class="sagoma da-sinistra" aria-hidden="true">
+        <i class="fa-solid fa-person-running"></i>
+        <i class="fa-solid fa-futbol palla"></i>
+      </span>
+
+      <span class="sagoma da-destra" aria-hidden="true">
+        <i class="fa-solid fa-person-running"></i>
+        <i class="fa-solid fa-football palla"></i>
+      </span>
+
+      <span class="sagoma dal-basso" aria-hidden="true">
+        <i class="fa-solid fa-person"></i>
+        <i class="fa-solid fa-basketball palla"></i>
+      </span>
+
+      <h1 class="display-6 fw-bold mb-2">Tutto lo sport che segui, in un posto solo</h1>
+      <p class="lead mb-0">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+
+    </div>
+  </section>
+
+  <main class="container pt-5">
 
 
     <section id="preferiti-section" class="mb-5">

@@ -1,7 +1,23 @@
 /* SportsHub — Week Project Settimana VII
-   Ho ridefinito lo stile attraverso le variabili CSS di Bootstrap
-   qui seguiranno cambio colori, font e raggi in tutta l'app. */
 
+   Lo stile nasce dalle variabili di Bootstrap: qui si cambiano colori,
+   carattere e raggi, e il resto dell'interfaccia si adegua da solo.
+   Il file e' diviso per aree della pagina, e ogni area tiene insieme le sue
+   regole con il nesting, media query comprese.
+
+   1. Variabili e temi
+   2. Impianto della pagina
+   3. Barra in cima
+   4. Apertura
+   5. Card delle squadre
+   6. Liste degli eventi
+   7. Scheda della squadra
+   8. Adattamenti: schermi stretti e meno movimento  */
+
+
+/* ============================================================
+   1. Variabili e temi
+   ============================================================ */
 
 /* Quello che vale per tutti e due i temi: carattere, raggi, colore guida. */
 
@@ -23,13 +39,14 @@
   --bs-body-color: #1a1a1a;
 
   --card-hover: #eaf0fa;
-}
 
-/* Le card restano bianche sopra lo sfondo appena grigio della pagina:
-   senza questo prenderebbero lo stesso colore e si vedrebbe solo il bordo. */
-
-[data-bs-theme="light"] .card {
-  --bs-card-bg: #fff;
+  /* Le card restano bianche sopra lo sfondo appena grigio della pagina:
+     senza questo prenderebbero lo stesso colore e si vedrebbe solo il bordo.
+     La variabile va posata sulla card, non sulla pagina: e' li' che Bootstrap
+     la dichiara, e una dichiarazione sull'elemento vince su quella ereditata. */
+  & .card {
+    --bs-card-bg: #fff;
+  }
 }
 
 /* Al buio il blu della palette e' troppo scuro per staccare dallo sfondo:
@@ -40,15 +57,10 @@
   --bs-primary-rgb: 48, 87, 167;
 
   --card-hover: #343b42;
-}
 
-/* Senza questo le card sparirebbero nello sfondo: al buio Bootstrap da' a
-   entrambi lo stesso colore e resterebbe solo il bordo a dividerli. La
-   variabile va posata sulla card, non sulla pagina: e' li' che Bootstrap
-   la dichiara, e una dichiarazione sull'elemento vince su quella ereditata. */
-
-[data-bs-theme="dark"] .card {
-  --bs-card-bg: #2b3035;
+  & .card {
+    --bs-card-bg: #2b3035;
+  }
 }
 
 .btn-primary {
@@ -57,6 +69,131 @@
   --bs-btn-hover-bg: hsl(220, 60%, 20%);
   --bs-btn-hover-border-color: hsl(220, 60%, 20%);
 }
+
+
+/* ============================================================
+   2. Impianto della pagina
+   ============================================================ */
+
+/* Con poco contenuto il footer resterebbe a mezz'aria: la pagina occupa tutta
+   l'altezza dello schermo e il contenuto principale si prende lo spazio che
+   avanza, cosi' il footer finisce sempre in fondo. */
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  & > main {
+    flex: 1;
+  }
+}
+
+
+/* ============================================================
+   3. Barra in cima
+   ============================================================ */
+
+/* La barra cambia tinta quando l'apertura esce di scena: sopra le sagome si
+   confonde con lo sfondo, sul contenuto chiaro deve invece staccare.
+   Si ridefinisce la variabile che bg-primary gia' usa, cosi' non serve
+   combattere con l'!important delle utility. */
+
+.navbar {
+  transition: background-color .35s ease;
+
+  &.oltre-hero {
+    --bs-primary-rgb: 14, 28, 56;
+  }
+
+  /* al buio un quasi nero sparirebbe contro la pagina */
+  [data-bs-theme="dark"] &.oltre-hero {
+    --bs-primary-rgb: 23, 42, 82;
+  }
+
+}
+
+
+/* ============================================================
+   4. Apertura
+   ============================================================ */
+
+/* Abbastanza grande da farsi notare, non tanto da spingere giu' il contenuto:
+   poco piu' di un terzo dello schermo. */
+
+#hero {
+  position: relative;
+  min-height: 38vh;
+  padding: 3.5rem 0 4rem;
+  overflow: hidden;
+
+  /* Il testo passa sopra le sagome: senza un alone scuro si confonderebbe
+     con le figure, che sono dello stesso blu schiarito. */
+  & h1,
+  & p {
+    text-shadow: 0 .15rem .9rem rgb(0 0 0 / .45);
+  }
+}
+
+/* Le sagome stanno dietro al testo e restano appena accennate. */
+
+.sagoma {
+  position: absolute;
+  top: 50%;
+  font-size: 7.5rem;
+  color: #fff;
+  opacity: .24;
+  line-height: 1;
+
+  /* il pallone sta ai piedi della figura, non a mezz'aria */
+  & .palla {
+    font-size: .3em;
+    margin-left: -.15em;
+    vertical-align: -.1em;
+  }
+
+  /* Chi corre verso destra sta a sinistra, e viceversa: si guardano. */
+  &.da-sinistra {
+    left: 1rem;
+    bottom: -1.5rem;
+    animation: entra-da-sinistra 1s ease-out both;
+  }
+
+  &.da-destra {
+    right: 1rem;
+    bottom: -1.5rem;
+    scale: -1 1;
+    animation: entra-da-destra 1s ease-out both;
+  }
+
+  /* quella di fronte e' piu' grande e sta al centro, dietro al titolo */
+  &.dal-basso {
+    left: 50%;
+    bottom: -2rem;
+    font-size: 9rem;
+    animation: entra-dal-basso 1s .15s ease-out both;
+  }
+}
+
+@keyframes entra-da-sinistra {
+  from { opacity: 0; transform: translateX(-140%); }
+  to   { opacity: .24; transform: none; }
+}
+
+@keyframes entra-da-destra {
+  from { opacity: 0; transform: translateX(140%); }
+  to   { opacity: .24; transform: none; }
+}
+
+@keyframes entra-dal-basso {
+  from { opacity: 0; transform: translate(-50%, 70%); }
+  to   { opacity: .24; transform: translateX(-50%); }
+}
+
+
+/* ============================================================
+   5. Card delle squadre
+   ============================================================ */
 
 /* Solo le card vere sono cliccabili: lo skeleton non deve reagire al mouse. */
 
@@ -77,6 +214,11 @@
   height: 100px;
 }
 
+
+/* ============================================================
+   6. Liste degli eventi
+   ============================================================ */
+
 /* Le voci degli eventi aprono la loro scheda. */
 
 li[data-evento] {
@@ -93,53 +235,64 @@ li[data-evento] {
 }
 
 
-/* La frase di apertura entra una volta sola, al caricamento. */
+/* ============================================================
+   7. Scheda della squadra
+   ============================================================ */
 
-#intro {
-  animation: entra .5s ease-out both;
-}
+/* L'immagine della squadra sta dietro l'intestazione. La sfumatura serve a
+   leggere il testo sopra una foto qualsiasi: senza, il nome sparirebbe su
+   ogni immagine chiara. */
 
-@keyframes entra {
-  from {
-    opacity: 0;
-    transform: translateY(-.5rem);
+#dettagli-modal .modal-header.con-sfondo {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 0;
+  min-height: 7rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgb(0 0 0 / .80), rgb(0 0 0 / .45));
   }
 
-  to {
-    opacity: 1;
-    transform: none;
+  /* il contenuto va sopra la sfumatura, non sotto */
+  & > * {
+    position: relative;
   }
 }
 
-/* Chi ha chiesto al sistema meno animazioni non deve vederne nessuna. */
+
+/* ============================================================
+   8. Adattamenti
+   ============================================================ */
+
+/* Sotto questa larghezza le sagome finirebbero sotto il titolo. */
+
+@media (max-width: 767.98px) {
+  .sagoma {
+    display: none;
+  }
+}
+
+/* Chi ha chiesto al sistema meno animazioni non deve vederne nessuna.
+   I selettori ripetono quelli delle regole sopra, non versioni piu' corte:
+   una regola meno specifica non le spegnerebbe, anche stando piu' in basso. */
 
 @media (prefers-reduced-motion: reduce) {
-  #intro {
+  .navbar {
+    transition: none;
+  }
+
+  .sagoma.da-sinistra,
+  .sagoma.da-destra,
+  .sagoma.dal-basso {
     animation: none;
   }
 
-  #risultati .card,
+  #risultati .card:not(.placeholder-glow),
   #preferiti .card {
     transition: none;
   }
-}
-
-
-/* Quando parte la ricerca la pagina scorre fin qui: perche' la sezione possa
-   salire davvero in cima le serve spazio sotto di se', altrimenti il browser
-   si ferma al fondo del documento e il titolo resta a meta' schermo. */
-
-
-/* Con poco contenuto il footer resterebbe a mezz'aria: la pagina occupa tutta
-   l'altezza dello schermo e il contenuto principale si prende lo spazio che
-   avanza, cosi' il footer finisce sempre in fondo. */
-
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-body > main {
-  flex: 1;
 }

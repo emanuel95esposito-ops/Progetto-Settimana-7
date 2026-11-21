@@ -9,14 +9,19 @@ Week project della Settimana VII — Master Front-End EPICODE.
 
 ## Anteprima
 
-La pagina principale: squadre preferite con filtro per sport e i prossimi
-impegni di tutte, in ordine di data.
+La pagina intera: apertura, squadre preferite con filtro per sport, prossimi
+impegni e risultato della ricerca.
 
 ![La pagina principale di SportsHub](assets/img/anteprima.png)
 
 La scheda di un singolo evento, che si apre dalle liste delle partite.
 
 ![La scheda di una partita, con punteggio e dati dell'incontro](assets/img/anteprima-modale.png)
+
+Scorrendo oltre l'apertura la barra si scurisce, perché non ha più la hero
+a farle da sfondo.
+
+![La pagina scorsa in basso, con la barra scura e il footer](assets/img/footer.png)
 
 ## Funzionalità
 
@@ -29,6 +34,8 @@ La scheda di un singolo evento, che si apre dalle liste delle partite.
 - I cinque impegni più vicini fra tutte le squadre salvate, in ordine di data
 - Accesso e registrazione su pagine dedicate
 - Tema chiaro e scuro: la scelta resta salvata, il primo avvio segue le impostazioni del sistema
+- Apertura con le sagome dei tre sport che entrano dai lati, e barra che cambia tinta una volta superata
+- Scheda squadra con l'immagine della squadra dietro l'intestazione, presa dall'API
 - Segnaposto animati durante il caricamento e avvisi dedicati in caso di errore
 
 ## Tecnologie
@@ -108,7 +115,7 @@ I comandi `npm` servono soltanto per provare la modalità `"locale"`.
       auth.js             i due backend dietro un'interfaccia sola
     assets/
       css/style.css       variabili Bootstrap, due temi, poche regole proprie
-      img/                immagini del README
+      img/                le tre immagini del README
       js/
         classi.js         Squadra ed Evento
         api.js            chiamate a TheSportsDB, cache, pausa dopo un rifiuto
