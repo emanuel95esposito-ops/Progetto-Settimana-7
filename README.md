@@ -84,10 +84,11 @@ Credenziali di prova: `emilys` / `emilyspass`, precompilabili dalla pagina di ac
 Registrazione e accesso completi su un backend finto in locale. Richiede:
 
     npm install
-    npm run server:init    # solo la prima volta: crea db.json da db.example.json
+    npm run server:init    # solo la prima volta: crea db.json da db.example.json ( se db.json già esiste, il comando lo sovrascrive )
     npm run server
 
-e `MODALITA = "locale"`. Il server resta in ascolto su `http://localhost:3001`.
+Imposta `const MODALITA = "locale";` in `auth/auth.js`.
+Il comando `npm run server` avvia il backend su `http://127.0.0.1:3001`. La porta `3001` deve essere libera.
 Vale solo in locale: la versione pubblicata su GitHub Pages è servita in HTTPS
 e non può chiamare un indirizzo in HTTP, oltre al fatto che quel server gira
 soltanto sul tuo computer.

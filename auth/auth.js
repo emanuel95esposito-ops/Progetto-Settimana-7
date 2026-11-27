@@ -20,7 +20,7 @@ const BACKEND = {
         prova: { identita: "emilys", password: "emilyspass" }
     },
     locale: {
-        base: "http://localhost:3001",
+        base: "http://127.0.0.1:3001",
         login: "/login",
         profilo: null,
         registrazione: "/register",
